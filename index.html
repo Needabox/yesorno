@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- BootstrapWatch CDN Sketchy -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootswatch@4.5.2/dist/sketchy/bootstrap.min.css" integrity="sha384-RxqHG2ilm4r6aFRpGmBbGTjsqwfqHOKy1ArsMhHusnRO47jcGqpIQqlQK/kmGy9R" crossorigin="anonymous">
+    
+    <!-- Vue Js Script -->
+    <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+
+    <!-- Axios -->
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
+    <!-- Lodash -->
+    <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
+    <style>
+        footer {
+            position: fixed;
+            padding: 10px 10px 0px 10px;
+            bottom: 0;
+            width: 100%;
+        }
+    </style>
+    <title>Yes Or No For You</title>
+</head>
+
+<body>
+    <div id="app">
+        <div class="container text-center mt-5">
+            <h1>Ask A Question For Me!</h1>
+            <h3>Must be a yes / or no question</h3>
+            <input type="text" class="form-control" v-model="question"><br/><br/>
+            <h1>{{ answer }}</h1>
+            <img :src="image">
+        </div>
+    </div>
+    <footer>
+        <!-- Copyright -->
+        <div class="text-center p-4" style="background-color: rgba(0, 0, 0, 0.05);">
+            © 2021 Copyright:
+            <a class="text-reset fw-bold" href="https://muhammad-rafli.vercel.app/">MUHAMMAD RAFLI</a>
+        </div>
+        <!-- Copyright -->
+    </footer>
+    <script>
+        let app = new Vue({
+            el: '#app',
+            data: {
+                question: '',
+                answer: '',
+                image: '',
+            },
+            watch: {
+                question: function(newQuestion) {
+                    this.answer = 'Waiting for you to finish typing...'
+                    this.getAnswer()
+                }
+            },
+            methods: {
+                getAnswer: _.debounce(
+                    function () {
+                        let vm = this
+                        if (this.question.indexOf('?') === -1) {
+                            vm.answer = 'Questions usually have a questionmark'
+                            return 
+                        }
+                        vm.answer = 'Thinking...'
+                        axios.get('https://yesno.wtf/api')
+                        .then(function(response){
+                            vm.answer = _.capitalize(response.data.answer)
+                            vm.image = response.data.image
+                        })
+                        .catch(function(err) {
+                            vm.answer = 'Error: '+err
+                        })
+                    }, 500
+                )
+            },
+        });
+    </script>
+</body>
+
+</html>
